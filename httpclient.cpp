@@ -61,13 +61,17 @@ coro::task<bool> HttpClient::send(std::string_view path, std::function<coro::tas
     // Receive response
     std::vector<char> response(256);
     while (true) {
-        co_await client.poll(coro::poll_op::read, timeout);
-        auto [recv_status, recv_bytes] = client.recv(response);
-
-        if (recv_status != coro::net::recv_status::ok || !(co_await cb(recv_bytes))) {
-            if (static_cast<int64_t>(recv_status) != EAGAIN) {
+        auto pres = co_await client.poll(coro::poll_op::read, timeout);
+        // Check if poll succeeded
+        if (pres == coro::poll_status::event) {
+            // Receive
+            auto [recv_status, recv_bytes] = client.recv(response);
+            // Handle error in receive
+            if (recv_status != coro::net::recv_status::ok || !(co_await cb(recv_bytes))) {
                 co_return recv_status == coro::net::recv_status::closed;
             }
+        } else {
+            co_return pres != coro::poll_status::closed;
         }
     }
 }

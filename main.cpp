@@ -12,8 +12,7 @@ int main() {
     coro::sync_wait(coro::when_all([&] () -> coro::task<void> {
                                        HttpClient client(scheduler);
                                        co_await client.set_host("example.com");
-                                       client.set_ssl(true);
-                                       client.set_timeout(1);
+                                       //client.set_ssl(true);
                                        HttpClient::Headers headers = {{"User-Agent", "Lol"}, {"Bla", "Test"}};
                                        co_await client.send("/", [] (std::span<const char> data) -> coro::task<bool> {
                                            std::cout << std::string_view{data.data(), data.size()} << std::flush;

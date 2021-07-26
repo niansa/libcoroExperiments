@@ -17,7 +17,7 @@ class HttpClient {
     coro::net::ip_address addr;
     std::string host;
     uint16_t port = 0;
-    std::chrono::milliseconds timeout = std::chrono::milliseconds(5000);
+    std::chrono::milliseconds timeout = std::chrono::milliseconds(0);
     std::unique_ptr<coro::net::ssl_context> ssl_context = nullptr;
 
 public:
