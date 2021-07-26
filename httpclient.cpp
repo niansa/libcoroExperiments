@@ -67,6 +67,9 @@ coro::task<bool> HttpClient::send(std::string_view path, std::function<coro::tas
             // Receive
             auto [recv_status, recv_bytes] = client.recv(response);
             // Handle error in receive
+            if (recv_status == coro::net::recv_status::would_block) {
+                continue;
+            }
             if (recv_status != coro::net::recv_status::ok || !(co_await cb(recv_bytes))) {
                 co_return recv_status == coro::net::recv_status::closed;
             }
